@@ -2,7 +2,7 @@
 
 ## KNO Lab 4
 - [x] Podziel zbiór danych na 3 podzbiory - treningowy, walidacyjny i testowy. Upewnij się, że za każdym razem ten podział będzie taki sam. Zachęcam do poproszenia prowadzącego w celu konsultacji.
-- [ ] Zapisz wyniki Twojego modelu z poprzednich zajęć na zbiorze walidacyjnym i testowym. Będzie to tzw "baseline", czyli punkt odniesienia, do którego będziemy porównywali. Zakładamy, że uda się poprawić wyniki. 
+- [x] Zapisz wyniki Twojego modelu z poprzednich zajęć na zbiorze walidacyjnym i testowym. Będzie to tzw "baseline", czyli punkt odniesienia, do którego będziemy porównywali. Zakładamy, że uda się poprawić wyniki. 
 - [ ] Uporządkuj kod tak, aby tworzenie modelu było oddzielną funkcją. Funkcja ta powinna przyjmować parametry, a zwracać model. Zobacz przykład załączony na dole. Istotna uwaga - niech będą dwie sieci o różnym układzie warstw (wielkość/liczba warstw).
 - [ ] Zdecyduj się na zestaw 3 parametrów które będziesz optymalizować. Wymagane to tempo uczenia i sieć neuronowa (czyli różne układy warstw), a trzeci parametr proszę wybrać. Parametry mogą być różnych typów.
 - [ ] Wykonaj eksperyment dla wszystkich kombinacji wartości parametrów (2 możliwości per parametr) - nauka na zbiorze treningowym a walidacja na walidacyjnym.

@@ -2,9 +2,13 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import sys
+import tensorboard
+
+from keras import Sequential
 from sklearn.preprocessing import StandardScaler
 from keras.src.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
+
 
 def plot_learning_curves(history, title):
     plt.figure(figsize=(12, 5))
@@ -41,16 +45,7 @@ def predict_with_trained_model(model):
     predicted_class = np.argmax(prediction, axis=1)
     print("Predicted Class:", predicted_class+1)
 
-def define_model(hp_units, hp_learning_rate):
-  model = keras.Sequential()
-  model.add(keras.layers.Flatten(input_shape=(28, 28)))
-  model.add(keras.layers.Dense(units=hp_units, activation='relu'))
-  model.add(keras.layers.Dense(10))
-  model.compile(optimizer=keras.optimizers.Adam(learning_rate=hp_learning_rate),
-                loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                metrics=['accuracy'])
-  return model
-if __name__ == '__main__':
+def wrangle_data(path):
     scaler = StandardScaler()
     np.random.seed(42)
     tf.random.set_seed(42)
@@ -67,7 +62,7 @@ if __name__ == '__main__':
 
     wine_array = np.concatenate((features, one_hot_labels),axis=1)
 
-    ## Dataset splitting #TODO Check if that's okay
+    ## Dataset splitting
     wine_array_train, wine_array_test = train_test_split(wine_array, test_size=0.1, random_state=42)
     wine_array_train, wine_array_val = train_test_split(wine_array, test_size=0.1, random_state=42)
 
@@ -80,24 +75,47 @@ if __name__ == '__main__':
     x_val = wine_array_val[:, :-3]
     y_val = wine_array_val[:, -3:]
 
-    model_standard = tf.keras.Sequential([
-        tf.keras.layers.Dense(13, input_shape=(13,), activation='relu'),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(12, activation='relu'),
-        tf.keras.layers.Dense(3, activation='softmax')
-        ])
-    model_standard.summary()
-    model_standard.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return x_train, y_train, x_test, y_test, x_val, y_val
 
-    model_bigger = tf.keras.Sequential([
-        tf.keras.layers.Dense(13, input_shape=(13,), activation='relu'),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(24, activation='relu'),
-        tf.keras.layers.Dense(3, activation='softmax')
-    ])
-    model_bigger.summary()
-    model_bigger.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+def define_model(reluLayers, neuronPerLayer, neuronNumberChange = "flat"):
+    model = Sequential()
+    model.add(tf.keras.layers.Dense(13, input_shape=(13,), activation='relu')) # Input layer stays the same
+    model.add(tf.keras.layers.Dropout(0.2))
+    if neuronNumberChange == "flat":
+        for i in range(int(reluLayers)):
+            model.add(tf.keras.layers.Dense(neuronPerLayer, activation='relu'))
+    elif neuronNumberChange == "ascending":
+        for i in range(int(reluLayers)):
+            model.add(tf.keras.layers.Dense(int(i*len(reluLayers))*neuronPerLayer, activation='relu'))
+    elif neuronNumberChange == "descending":
+        for i in range(int(reluLayers)):
+            model.add(tf.keras.layers.Dense(int((reluLayers-i)*len(reluLayers))*neuronPerLayer, activation='relu'))
 
+    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Dense(3, activation='softmax'))
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    return model
+
+if __name__ == '__main__':
+    x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train')
+
+    models_array = []
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs/fit", histogram_freq=1)
+    maxLayersNumber = 4
+    maxNeuronsNumber = 8
+    for layers in range(1,maxLayersNumber):
+        for neurons in range(1,maxNeuronsNumber):
+            models_array.append(define_model(layers, neurons))
+
+    input_data = tf.random.normal((10, 13))  # 10 samples, each with 13 features
+    target_data = tf.random.normal((10, 3))  # 10 samples, each with 3 output classes (softmax)
+
+    # Train the models and visualize with TensorBoard
+    for model in models_array:
+        model.summary()  # Print model summary
+
+    exit()
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=4, restore_best_weights=True)
 
     print("Trenowanie modelu Standard...")
