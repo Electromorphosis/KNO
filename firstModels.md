@@ -16,6 +16,7 @@
 > loss: 0.9011 
 > val_accuracy: 0.8125 
 > val_loss: 0.8421
+[Standard] test loss, test acc: [0.7350656986236572, 0.7777777910232544]
 
 # Bigger
 ```
@@ -35,3 +36,4 @@
 > loss: 0.6925 
 > val_accuracy: 0.7708 
 > val_loss: 0.6745
+> [Bigger] test loss, test acc: [0.7036924362182617, 0.7777777910232544]

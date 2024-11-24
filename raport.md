@@ -57,24 +57,25 @@ Zebrano dane na temat efektywności modeli o następujących parametrach:
 Dane zebrano w tabeli zbiorczej w celu porównania z modelem z poprzednich zajęć.
  
 Model baseline (z lab 3) miał następujące parametry:
-# Standard
+### Powiększony
 ```
 ┌─────────────────────────────────┬────────────────────────┬───────────────┐
 │ Layer (type)                    │ Output Shape           │       Param # │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense (Dense)                   │ (None, 13)             │           182 │
+│ dense_3 (Dense)                 │ (None, 13)             │           182 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dropout (Dropout)               │ (None, 13)             │             0 │
+│ dropout_1 (Dropout)             │ (None, 13)             │             0 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_1 (Dense)                 │ (None, 12)             │           168 │
+│ dense_4 (Dense)                 │ (None, 24)             │           336 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_2 (Dense)                 │ (None, 3)              │            39 │
+│ dense_5 (Dense)                 │ (None, 3)              │            75 │
 └─────────────────────────────────┴────────────────────────┴───────────────┘
 ```
-> accuracy: 0.6164 
-> loss: 0.9011 
-> val_accuracy: 0.8125 
-> val_loss: 0.8421
+> accuracy: 0.6967 
+> loss: 0.6925 
+> val_accuracy: 0.7708 
+> val_loss: 0.6745
+> [Bigger] test loss, test acc: [0.7036924362182617, 0.7777777910232544]
 
 Dodatkowo, zaimplementowano także możliwość generacji modeli o wzrastającej i malejącej liczbie neuronów na każdej z warstw dense/relu, jednak test przeprowadzono wyłącznie na modelach o takiej samej liczbie neuronóœ.
 
@@ -88,6 +89,11 @@ learning rate = 0.02
 **strata = 0.0481**
 **dokładność = 0.944**
 
-Podsumowując, można stwierdzić, że 
+Podsumowując, można stwierdzić, że zoptymalizowany model wykazał się istotnie wyższą - o kilkanaście pkt. % - dokładnością oraz _**o ponad rząð wielkości mniejszym współczynnikiem straty**_
 
-## Wyniki modelu
+## Wyniki dla modelu "zwycięzcy" z Tensorboard
+![img.png](img.png)
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+![img_3.png](img_3.png)
+
