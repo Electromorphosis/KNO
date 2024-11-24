@@ -87,3 +87,7 @@ dropout rate = 0.1
 learning rate = 0.02
 **strata = 0.0481**
 **dokładność = 0.944**
+
+Podsumowując, można stwierdzić, że 
+
+## Wyniki modelu

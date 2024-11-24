@@ -107,8 +107,8 @@ def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, ne
 if __name__ == '__main__':
     x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train')
 
-    models_array = []
-    models_histories = []
+    # models_array = []
+    # models_histories = []
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=4, restore_best_weights=True)
 
     model_data = {'Neuron_number':[],
@@ -119,27 +119,40 @@ if __name__ == '__main__':
                   'Loss':[],
                   'Accuracy': [],
                   }
-    model_summary_df = pd.DataFrame(model_data)
+    # model_summary_df = pd.DataFrame(model_data)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs/fit", histogram_freq=1)
-    maxLayersNumber = 6
-    maxNeuronsNumber = 14
-    for layers in range(1,maxLayersNumber):
-        for neurons in range(1,maxNeuronsNumber):
-            for dropout in range(1, 4, 1):
-                for learning_rate in range (5, 25, 5):
-                    model = define_model(layers, neurons, learning_rate/100, dropout/10, "flat")
-                    models_array.append(model)
-                    model.summary()
-                    models_histories.append(model.fit(
+    # maxLayersNumber = 6
+    # maxNeuronsNumber = 14
+    # for layers in range(1,maxLayersNumber):
+    #     for neurons in range(1,maxNeuronsNumber):
+    #         for dropout in range(1, 4, 1):
+    #             for learning_rate in range (5, 25, 5):
+    #                 model = define_model(layers, neurons, learning_rate/100, dropout/10, "flat")
+    #                 models_array.append(model)
+    #                 model.summary()
+    #                 models_histories.append(model.fit(
+    #                     x_train, y_train,
+    #                     epochs=20,
+    #                     validation_data=(x_val, y_val),
+    #                     shuffle=False,
+    #                     callbacks=[early_stopping]
+    #                 ))
+    #                 results = model.evaluate(x_test, y_test, batch_size=32)
+    #                 loss, accuracy = results[0], results[1]
+    #                 model_summary_df.loc[len(model_summary_df.index)] = [neurons, layers, dropout/10, learning_rate/100, "flat", loss, accuracy]
+    #                 model_summary_df.to_csv('summary.csv', index=False)
+    #                 models_array.append(define_model(layers, neurons,  learning_rate/100, dropout/10, "ascending"))
+                    # models_array.append(define_model(layers, neurons,  learning_rate/100,dropout/10, "descending"))
+
+    winner_model = define_model(3, 12, 0.02, 0.1, "flat")
+    winner_model.summary()
+    winner_model.fit(
                         x_train, y_train,
                         epochs=20,
                         validation_data=(x_val, y_val),
                         shuffle=False,
-                        callbacks=[early_stopping]
-                    ))
-                    results = model.evaluate(x_test, y_test, batch_size=32)
-                    loss, accuracy = results[0], results[1]
-                    model_summary_df.loc[len(model_summary_df.index)] = [neurons, layers, dropout/10, learning_rate/100, "flat", loss, accuracy]
-                    model_summary_df.to_csv('summary.csv', index=False)
-                    # models_array.append(define_model(layers, neurons,  learning_rate/100, dropout/10, "ascending"))
-                    # models_array.append(define_model(layers, neurons,  learning_rate/100,dropout/10, "descending"))
+                        callbacks=[early_stopping, tensorboard_callback]
+                    )
+    results = winner_model.evaluate(x_test, y_test, batch_size=32)
+    loss, accuracy = results[0], results[1]
+    print(f"Test results: Loss = {loss}, Accuracy = {accuracy}")
