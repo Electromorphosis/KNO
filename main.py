@@ -34,13 +34,22 @@ def parse_input():
         arg_list.append(float(arg))
     return np.array(arg_list).reshape(1, -1)
 
-def predict_with_trained_model():
+def predict_with_trained_model(model):
     user_input = parse_input()
-    prediction = model_bigger.predict(user_input)
+    prediction = model.predict(user_input)
     print(f"Prediction: {prediction}")
     predicted_class = np.argmax(prediction, axis=1)
     print("Predicted Class:", predicted_class+1)
 
+def define_model(hp_units, hp_learning_rate):
+  model = keras.Sequential()
+  model.add(keras.layers.Flatten(input_shape=(28, 28)))
+  model.add(keras.layers.Dense(units=hp_units, activation='relu'))
+  model.add(keras.layers.Dense(10))
+  model.compile(optimizer=keras.optimizers.Adam(learning_rate=hp_learning_rate),
+                loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                metrics=['accuracy'])
+  return model
 if __name__ == '__main__':
     scaler = StandardScaler()
     np.random.seed(42)
@@ -58,13 +67,18 @@ if __name__ == '__main__':
 
     wine_array = np.concatenate((features, one_hot_labels),axis=1)
 
+    ## Dataset splitting #TODO Check if that's okay
+    wine_array_train, wine_array_test = train_test_split(wine_array, test_size=0.1, random_state=42)
+    wine_array_train, wine_array_val = train_test_split(wine_array, test_size=0.1, random_state=42)
 
-    wine_array_train, wine_array_test = train_test_split(wine_array, test_size=0.2, random_state=42)
     x_train = wine_array_train[:, :-3]
     y_train = wine_array_train[:, -3:]
 
     x_test = wine_array_test[:, :-3]
     y_test = wine_array_test[:, -3:]
+
+    x_val = wine_array_val[:, :-3]
+    y_val = wine_array_val[:, -3:]
 
     model_standard = tf.keras.Sequential([
         tf.keras.layers.Dense(13, input_shape=(13,), activation='relu'),
