@@ -116,12 +116,13 @@ if __name__ == '__main__':
                   'Dropout_rate':[],
                   'LearningRate':[],
                   'Neuron_number_change':[],
-                  'Results':[],
+                  'Loss':[],
+                  'Accuracy': [],
                   }
     model_summary_df = pd.DataFrame(model_data)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs/fit", histogram_freq=1)
-    maxLayersNumber = 4
-    maxNeuronsNumber = 5
+    maxLayersNumber = 6
+    maxNeuronsNumber = 14
     for layers in range(1,maxLayersNumber):
         for neurons in range(1,maxNeuronsNumber):
             for dropout in range(1, 4, 1):
@@ -131,37 +132,14 @@ if __name__ == '__main__':
                     model.summary()
                     models_histories.append(model.fit(
                         x_train, y_train,
-                        epochs=10,
+                        epochs=20,
                         validation_data=(x_val, y_val),
                         shuffle=False,
                         callbacks=[early_stopping]
                     ))
                     results = model.evaluate(x_test, y_test, batch_size=32)
-                    model_summary_df.loc[len(model_summary_df.index)] = [neurons, layers, dropout, learning_rate, "flat", results]
+                    loss, accuracy = results[0], results[1]
+                    model_summary_df.loc[len(model_summary_df.index)] = [neurons, layers, dropout/10, learning_rate/100, "flat", loss, accuracy]
                     model_summary_df.to_csv('summary.csv', index=False)
                     # models_array.append(define_model(layers, neurons,  learning_rate/100, dropout/10, "ascending"))
                     # models_array.append(define_model(layers, neurons,  learning_rate/100,dropout/10, "descending"))
-
-
-
-    # models_evaluations = np.zeros((len(models_array), 2))
-    # print("Training models...")
-    # for model in models_array:
-    #     models_histories.append(model.fit(
-    #         x_train, y_train,
-    #         epochs=10,
-    #         validation_data=(x_test, y_test),
-    #         shuffle=False,
-    #         callbacks=[early_stopping]
-    #     ))
-    #     print("test loss, test acc:", results)
-
-    #
-    #
-    # plot_learning_curves(history_standard, "Standard Model")
-    # plot_learning_curves(history_bigger, "Bigger Model")
-    #
-    # print(f'Test Accuracy (standard): {history_standard.accuracy:.2f}')
-    # print(f'Test Accuracy (bigger): {history_standard.accuracy_bigger:.2f}')
-    #
-    # predict_with_trained_model()

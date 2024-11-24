@@ -46,3 +46,44 @@ Na podstawie tego i kilku dodatkowych, nieopisanych tutaj szczegółowo powtórz
 
 Wniosek z punktu drugiego można skrótowo podsumować:
 > _Większy (model) nie zawsze znaczy lepszy_
+
+# Raport Laboratorium 4
+Zebrano dane na temat efektywności modeli o następujących parametrach:
+- 1 - 6 warstw typu relu.
+- 1 - 13 neuronów.
+- dropout Rate na warstwach drugiej (po warstwie danych wejściowych) i przedostaniej (przed warstwą danych wyjściowych) mógł wynieść: 0.1, 0.2 lub 0.3.
+- learning rate mógł wynieść: 0.005, 0.01, 0.015, 0.02
+
+Dane zebrano w tabeli zbiorczej w celu porównania z modelem z poprzednich zajęć.
+ 
+Model baseline (z lab 3) miał następujące parametry:
+# Standard
+```
+┌─────────────────────────────────┬────────────────────────┬───────────────┐
+│ Layer (type)                    │ Output Shape           │       Param # │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 13)             │           182 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 13)             │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 12)             │           168 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (Dense)                 │ (None, 3)              │            39 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+```
+> accuracy: 0.6164 
+> loss: 0.9011 
+> val_accuracy: 0.8125 
+> val_loss: 0.8421
+
+Dodatkowo, zaimplementowano także możliwość generacji modeli o wzrastającej i malejącej liczbie neuronów na każdej z warstw dense/relu, jednak test przeprowadzono wyłącznie na modelach o takiej samej liczbie neuronóœ.
+
+W sumie, przetrenowano n = 468 struktur. Część z nich osiągnęła dokładność na danych testowych równą 100%, tych zdecydowano się nie brać dalej pod uwagę ze względu na możliwość, że zostały przetrenowane. Trening dla wszystkich wynosił 20 epok.
+
+Najlepszym modelem, tj. takim o najwyżej, ale nierównej 100% dokładności oraz najniższej stracie okazał się ten o następujących parametrach:
+liczba neuronów (na warstwach dense/relu) = 12
+liczba warstw = 3
+dropout rate = 0.1
+learning rate = 0.02
+**strata = 0.0481**
+**dokładność = 0.944**
