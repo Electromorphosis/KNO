@@ -1,7 +1,10 @@
+from operator import index
+
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import sys
+import pandas as pd
 import tensorboard
 
 from keras import Sequential
@@ -77,23 +80,27 @@ def wrangle_data(path):
 
     return x_train, y_train, x_test, y_test, x_val, y_val
 
-def define_model(reluLayers, neuronPerLayer, neuronNumberChange = "flat"):
+def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, neuronNumberChange = "flat"):
     model = Sequential()
     model.add(tf.keras.layers.Dense(13, input_shape=(13,), activation='relu')) # Input layer stays the same
-    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Dropout(dropoutRate))
     if neuronNumberChange == "flat":
         for i in range(int(reluLayers)):
             model.add(tf.keras.layers.Dense(neuronPerLayer, activation='relu'))
     elif neuronNumberChange == "ascending":
         for i in range(int(reluLayers)):
-            model.add(tf.keras.layers.Dense(int(i*len(reluLayers))*neuronPerLayer, activation='relu'))
+            neuron_number = int(i*reluLayers)*neuronPerLayer if int(i*reluLayers)*neuronPerLayer > 0 else 1
+            model.add(tf.keras.layers.Dense(neuron_number, activation='relu'))
     elif neuronNumberChange == "descending":
         for i in range(int(reluLayers)):
-            model.add(tf.keras.layers.Dense(int((reluLayers-i)*len(reluLayers))*neuronPerLayer, activation='relu'))
+            neuron_number = int(i * reluLayers) * neuronPerLayer if int(
+                i * reluLayers) * neuronPerLayer > 0 else 1
+            model.add(tf.keras.layers.Dense(neuron_number, activation='relu'))
 
-    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Dropout(dropoutRate))
     model.add(tf.keras.layers.Dense(3, activation='softmax'))
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    opt = tf.keras.optimizers.Adam(learning_rate=learningRate)
+    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 
     return model
 
@@ -101,46 +108,60 @@ if __name__ == '__main__':
     x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train')
 
     models_array = []
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs/fit", histogram_freq=1)
-    maxLayersNumber = 4
-    maxNeuronsNumber = 8
-    for layers in range(1,maxLayersNumber):
-        for neurons in range(1,maxNeuronsNumber):
-            models_array.append(define_model(layers, neurons))
-
-    input_data = tf.random.normal((10, 13))  # 10 samples, each with 13 features
-    target_data = tf.random.normal((10, 3))  # 10 samples, each with 3 output classes (softmax)
-
-    # Train the models and visualize with TensorBoard
-    for model in models_array:
-        model.summary()  # Print model summary
-
-    exit()
+    models_histories = []
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=4, restore_best_weights=True)
 
-    print("Trenowanie modelu Standard...")
-    history_standard = model_standard.fit(
-        x_train, y_train,
-        epochs=20,
-        batch_size=32,
-        validation_split=0.3,
-        shuffle=False,
-        callbacks=[early_stopping]
-    )
+    model_data = {'Neuron_number':[],
+                  'Layers_number':[],
+                  'Dropout_rate':[],
+                  'LearningRate':[],
+                  'Neuron_number_change':[],
+                  'Results':[],
+                  }
+    model_summary_df = pd.DataFrame(model_data)
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="logs/fit", histogram_freq=1)
+    maxLayersNumber = 4
+    maxNeuronsNumber = 5
+    for layers in range(1,maxLayersNumber):
+        for neurons in range(1,maxNeuronsNumber):
+            for dropout in range(1, 4, 1):
+                for learning_rate in range (5, 25, 5):
+                    model = define_model(layers, neurons, learning_rate/100, dropout/10, "flat")
+                    models_array.append(model)
+                    model.summary()
+                    models_histories.append(model.fit(
+                        x_train, y_train,
+                        epochs=10,
+                        validation_data=(x_val, y_val),
+                        shuffle=False,
+                        callbacks=[early_stopping]
+                    ))
+                    results = model.evaluate(x_test, y_test, batch_size=32)
+                    model_summary_df.loc[len(model_summary_df.index)] = [neurons, layers, dropout, learning_rate, "flat", results]
+                    model_summary_df.to_csv('summary.csv', index=False)
+                    # models_array.append(define_model(layers, neurons,  learning_rate/100, dropout/10, "ascending"))
+                    # models_array.append(define_model(layers, neurons,  learning_rate/100,dropout/10, "descending"))
 
-    print("Trenowanie modelu Powiększonego...")
-    history_bigger = model_bigger.fit(
-        x_train, y_train,
-        epochs=20,
-        batch_size=32,
-        validation_split=0.3,
-        shuffle=False,
-    )
 
-    plot_learning_curves(history_standard, "Standard Model")
-    plot_learning_curves(history_bigger, "Bigger Model")
 
-    print(f'Test Accuracy (standard): {history_standard.accuracy:.2f}')
-    print(f'Test Accuracy (bigger): {history_standard.accuracy_bigger:.2f}')
+    # models_evaluations = np.zeros((len(models_array), 2))
+    # print("Training models...")
+    # for model in models_array:
+    #     models_histories.append(model.fit(
+    #         x_train, y_train,
+    #         epochs=10,
+    #         validation_data=(x_test, y_test),
+    #         shuffle=False,
+    #         callbacks=[early_stopping]
+    #     ))
+    #     print("test loss, test acc:", results)
 
-    predict_with_trained_model()
+    #
+    #
+    # plot_learning_curves(history_standard, "Standard Model")
+    # plot_learning_curves(history_bigger, "Bigger Model")
+    #
+    # print(f'Test Accuracy (standard): {history_standard.accuracy:.2f}')
+    # print(f'Test Accuracy (bigger): {history_standard.accuracy_bigger:.2f}')
+    #
+    # predict_with_trained_model()
