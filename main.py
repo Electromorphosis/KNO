@@ -36,10 +36,10 @@ def parse_input():
 
 def predict_with_trained_model():
     user_input = parse_input()
-    prediction = model_bigger.predict(user_input)
-    print(f"Prediction: {prediction}")
-    predicted_class = np.argmax(prediction, axis=1)
-    print("Predicted Class:", predicted_class+1)
+    # prediction = model_bigger.predict(user_input)
+    # print(f"Prediction: {prediction}")
+    # predicted_class = np.argmax(prediction, axis=1)
+    # print("Predicted Class:", predicted_class+1)
 
 if __name__ == '__main__':
     scaler = StandardScaler()
@@ -105,10 +105,16 @@ if __name__ == '__main__':
         shuffle=False,
     )
 
-    plot_learning_curves(history_standard, "Standard Model")
-    plot_learning_curves(history_bigger, "Bigger Model")
+    # plot_learning_curves(history_standard, "Standard Model")
+    # plot_learning_curves(history_bigger, "Bigger Model")
 
-    print(f'Test Accuracy (standard): {history_standard.accuracy:.2f}')
-    print(f'Test Accuracy (bigger): {history_standard.accuracy_bigger:.2f}')
+    results = model_standard.evaluate(x_test, y_test, batch_size=128)
+    print("[Standard] test loss, test acc:", results)
+
+    results = model_bigger.evaluate(x_test, y_test, batch_size=128)
+    print("[Bigger] test loss, test acc:", results)
+
+    # print(f'Test Accuracy (standard): {history_standard.accuracy:.2f}')
+    # print(f'Test Accuracy (bigger): {history_bigger.accuracy_bigger:.2f}')
 
     predict_with_trained_model()
