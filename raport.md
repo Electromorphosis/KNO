@@ -102,3 +102,9 @@ Podsumowując, można stwierdzić, że zoptymalizowany model wykazał się istot
 ![img_2.png](img_2.png)
 ![img_3.png](img_3.png)
 
+# Laboratorium 5
+Przetrenowywanie modelu. Co zrobiono?
+- Dodano parametr 'overtrain' to metody wrangling data. Domyślnie ustawione na False, jeśli ustawi się na True to zamiast robić podział na zbiory train/val/test, duplikuje cały zbiór na każdym etapie, umożliwiając celowe przetrenowanie.
+- Najlepszy, nieprzetrenowowany model sieci z poprzedniego laboratorium zdefiniowano w formie klasy MyModel
+- Dokonano treningu przetrenowującego dla wspomnianej sieci, wyłączając callback dla sztucznego przedłużenia treningu i zwiększenia szansy na przetrenowanie. Eksperyment się udał, co widać no poniższym wykresie:
+![img_4.png](img_4.png)

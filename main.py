@@ -107,26 +107,22 @@ def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, ne
 
     return model
 
+
 class MyModel(tf.keras.Model):
     def __init__(self):
         super().__init__()
 
-        # Input layer
-        # dropout 0.1
-        # 1. relu dense 12
-        # 2. relu dense 12
-        # 3. relu dense 12
-        # dropout 0.1
-        #
-        # learning rate = 0.02
-        self.inputLayer = tf.keras.layers.Dense(13, input_shape=(13,), activation='relu')  # Input layer stays the same
+        self.inputLayer = tf.keras.layers.Dense(12, activation='relu')
         self.dropoutStart = tf.keras.layers.Dropout(0.1)
+
         self.dense1 = tf.keras.layers.Dense(12, activation="relu")
         self.dense2 = tf.keras.layers.Dense(12, activation="relu")
         self.dense3 = tf.keras.layers.Dense(12, activation="relu")
-        self.dropoutEnd = tf.keras.layers.Dropout(0.1)
-        self.output = tf.keras.layers.Dense(3, activation='softmax')
 
+        self.dropoutEnd = tf.keras.layers.Dropout(0.1)
+        self.outputLayer = tf.keras.layers.Dense(3, activation="softmax")
+
+        # Compile with optimizer and loss
         opt = tf.keras.optimizers.Adam(learning_rate=0.002)
         self.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -137,7 +133,8 @@ class MyModel(tf.keras.Model):
         x = self.dense2(x)
         x = self.dense3(x)
         x = self.dropoutEnd(x)
-        return self.output(x)
+        return self.outputLayer(x)  # Pass through output layer
+
 
 model = MyModel()
 
