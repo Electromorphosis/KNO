@@ -82,12 +82,17 @@ Dodatkowo, zaimplementowano także możliwość generacji modeli o wzrastającej
 W sumie, przetrenowano n = 468 struktur. Część z nich osiągnęła dokładność na danych testowych równą 100%, tych zdecydowano się nie brać dalej pod uwagę ze względu na możliwość, że zostały przetrenowane. Trening dla wszystkich wynosił 20 epok.
 
 Najlepszym modelem, tj. takim o najwyżej, ale nierównej 100% dokładności oraz najniższej stracie okazał się ten o następujących parametrach:
-liczba neuronów (na warstwach dense/relu) = 12
-liczba warstw = 3
-dropout rate = 0.1
-learning rate = 0.02
-**strata = 0.0481**
-**dokładność = 0.944**
+> liczba neuronów (na warstwach dense/relu) = 12
+> 
+> liczba warstw = 3
+> 
+> dropout rate = 0.1
+> 
+> learning rate = 0.02
+> 
+> **strata = 0.0481**
+> 
+> **dokładność = 0.944**
 
 Podsumowując, można stwierdzić, że zoptymalizowany model wykazał się istotnie wyższą - o kilkanaście pkt. % - dokładnością oraz _**o ponad rząð wielkości mniejszym współczynnikiem straty**_
 

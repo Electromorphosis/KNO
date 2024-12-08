@@ -107,6 +107,40 @@ def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, ne
 
     return model
 
+class MyModel(tf.keras.Model):
+    def __init__(self):
+        super().__init__()
+
+        # Input layer
+        # dropout 0.1
+        # 1. relu dense 12
+        # 2. relu dense 12
+        # 3. relu dense 12
+        # dropout 0.1
+        #
+        # learning rate = 0.02
+        self.inputLayer = tf.keras.layers.Dense(13, input_shape=(13,), activation='relu')  # Input layer stays the same
+        self.dropoutStart = tf.keras.layers.Dropout(0.1)
+        self.dense1 = tf.keras.layers.Dense(12, activation="relu")
+        self.dense2 = tf.keras.layers.Dense(12, activation="relu")
+        self.dense3 = tf.keras.layers.Dense(12, activation="relu")
+        self.dropoutEnd = tf.keras.layers.Dropout(0.1)
+        self.output = tf.keras.layers.Dense(3, activation='softmax')
+
+        opt = tf.keras.optimizers.Adam(learning_rate=0.002)
+        self.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+
+    def call(self, inputs):
+        x = self.inputLayer(inputs)
+        x = self.dropoutStart(x)
+        x = self.dense1(x)
+        x = self.dense2(x)
+        x = self.dense3(x)
+        x = self.dropoutEnd(x)
+        return self.output(x)
+
+model = MyModel()
+
 if __name__ == '__main__':
     x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train', True)
 
@@ -147,7 +181,8 @@ if __name__ == '__main__':
     #                 models_array.append(define_model(layers, neurons,  learning_rate/100, dropout/10, "ascending"))
                     # models_array.append(define_model(layers, neurons,  learning_rate/100,dropout/10, "descending"))
 
-    winner_model = define_model(3, 12, 0.02, 0.1, "flat")
+    # winner_model = define_model(3, 12, 0.02, 0.1, "flat")
+    winner_model = MyModel()
     winner_model.summary()
     history = winner_model.fit(
                         x_train, y_train,
