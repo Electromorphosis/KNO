@@ -48,7 +48,7 @@ def predict_with_trained_model(model):
     predicted_class = np.argmax(prediction, axis=1)
     print("Predicted Class:", predicted_class+1)
 
-def wrangle_data(path):
+def wrangle_data(path, overtrain=False):
     scaler = StandardScaler()
     np.random.seed(42)
     tf.random.set_seed(42)
@@ -65,20 +65,23 @@ def wrangle_data(path):
 
     wine_array = np.concatenate((features, one_hot_labels),axis=1)
 
-    ## Dataset splitting
-    wine_array_train, wine_array_test = train_test_split(wine_array, test_size=0.1, random_state=42)
-    wine_array_train, wine_array_val = train_test_split(wine_array, test_size=0.1, random_state=42)
+    if not overtrain:
+        ## Dataset splitting
+        wine_array_train, wine_array_test = train_test_split(wine_array, test_size=0.1, random_state=42)
+        wine_array_train, wine_array_val = train_test_split(wine_array, test_size=0.1, random_state=42)
 
-    x_train = wine_array_train[:, :-3]
-    y_train = wine_array_train[:, -3:]
+        x_train = wine_array_train[:, :-3]
+        y_train = wine_array_train[:, -3:]
 
-    x_test = wine_array_test[:, :-3]
-    y_test = wine_array_test[:, -3:]
+        x_test = wine_array_test[:, :-3]
+        y_test = wine_array_test[:, -3:]
 
-    x_val = wine_array_val[:, :-3]
-    y_val = wine_array_val[:, -3:]
+        x_val = wine_array_val[:, :-3]
+        y_val = wine_array_val[:, -3:]
 
-    return x_train, y_train, x_test, y_test, x_val, y_val
+        return x_train, y_train, x_test, y_test, x_val, y_val
+    else:
+        return wine_array[:, :-3], wine_array[:, -3:], wine_array[:, :-3], wine_array[:, -3:], wine_array[:, :-3], wine_array[:, -3:]
 
 def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, neuronNumberChange = "flat"):
     model = Sequential()
@@ -105,7 +108,7 @@ def define_model(reluLayers, neuronPerLayer, learningRate, dropoutRate = 0.3, ne
     return model
 
 if __name__ == '__main__':
-    x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train')
+    x_train, y_train, x_test, y_test, x_val, y_val = wrangle_data('wine/train', True)
 
     # models_array = []
     # models_histories = []
@@ -146,13 +149,14 @@ if __name__ == '__main__':
 
     winner_model = define_model(3, 12, 0.02, 0.1, "flat")
     winner_model.summary()
-    winner_model.fit(
+    history = winner_model.fit(
                         x_train, y_train,
                         epochs=20,
                         validation_data=(x_val, y_val),
                         shuffle=False,
-                        callbacks=[early_stopping, tensorboard_callback]
+                        # callbacks=[early_stopping, tensorboard_callback]
                     )
     results = winner_model.evaluate(x_test, y_test, batch_size=32)
     loss, accuracy = results[0], results[1]
     print(f"Test results: Loss = {loss}, Accuracy = {accuracy}")
+    plot_learning_curves(history, "Overtrained winner")
