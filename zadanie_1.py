@@ -1,6 +1,5 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
-import matplotlib.pyplot as plt
 
 (ds_train, ds_test), ds_info = tfds.load(
     'mnist',
@@ -53,3 +52,6 @@ model_convolutional.fit(
     epochs=6,
     validation_data=ds_test,
 )
+
+# Careful! It will overwrite saved model!
+# model_convolutional.save('saved_models/convolutional_model.keras')
